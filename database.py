@@ -1,5 +1,6 @@
 import psycopg2
 
+# can't remember why this is a dict instead of a list. 
 allowed_tables = {"games", "movies"}
 
 # The below function copied from CGPT. Maybe redo by myself. 

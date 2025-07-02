@@ -16,7 +16,9 @@ from PyQt6.QtWidgets import (
     QDialog
 )
 from PyQt6.QtGui import QAction, QStandardItemModel, QStandardItem
+from windows.addTable_dialog import AddTableDialog
 from database import fetch_table_data, fetch_table_names
+from utils import centerWindow
 
 # Finish the new-table dialogue
 # Insert a way to add/remove/edit data.
@@ -45,25 +47,15 @@ class MainWindow(QMainWindow):
         add_table_button = self.setupButtons()
         self.table = QTableView()
 
-        # tableNames = fetch_table_names()
-
-        # QComboBox = Dropdown menu
+        # QComboBox means Dropdown menu
         self.dropdown = QComboBox()
         self.populateDropdown()
         self.dropdown.setCurrentIndex(-1)
-
-        # SET DROPDOWN TO DEFAULT TO NOT HAVING AN OPTION, RATHER THAN BE DEFAULT SET TO 'games'
-
-
 
         # currentTextChanged auto passes selected text to our function. Don't really get how though.
         self.dropdown.currentTextChanged.connect(self.dropdownOptionSelected)   
 
         grid_layout = QGridLayout()
-        # grid_layout.addWidget(QLabel("Row 1"), 0, 0)
-        # grid_layout.addWidget(QLabel("Row 2"), 1, 0)
-        # grid_layout.addWidget(QLabel(""), 0, 0)
-        # grid_layout.addWidget(QLabel(""), 1, 0)
 
         vbox1 = QVBoxLayout()
         vbox1.addSpacing(50)
@@ -71,12 +63,6 @@ class MainWindow(QMainWindow):
         vbox1.addWidget(add_table_button)
         vbox1.addSpacing(70)
 
-        # Should this even be here? Shouldn't I put it somewhere else like the setup buttons function?
-        add_table_button.clicked.connect(self.addTableButtonClicked)
-
-        # hbox1 = QHBoxLayout()
-        # hbox1.addWidget(welcome_label)
-        # hbox1.addWidget(add_table)
         hbox1_container = QWidget()
         hbox1_container.setLayout(vbox1)
 
@@ -87,8 +73,6 @@ class MainWindow(QMainWindow):
         vbox2.addWidget(self.dropdown)
         vbox2.addSpacing(100)
 
-        # hbox2 = QHBoxLayout()
-        # hbox2.addWidget(self.dropdown)
         hbox2_container = QWidget()
         hbox2_container.setLayout(vbox2)
 
@@ -122,6 +106,7 @@ class MainWindow(QMainWindow):
     def setupButtons(self):
         button_add_table = QPushButton(self)
         button_add_table.setText("Add Table")
+        button_add_table.clicked.connect(self.addTableButtonClicked)
         return button_add_table
 
 
@@ -137,25 +122,15 @@ class MainWindow(QMainWindow):
 
     def addTableButtonClicked(self):
         self.show_add_table()
-        # This doesn't work. I've ballsed it up. Lets try again tomorrow. 
     
 
-
-
-    # Ok ive ballsed this up and this is definitely not how I should do this.
-    # Like, I've done this here, but I should be doing it from Main, right? Idk. 
     def show_add_table(self):
-        dialog = QDialog()
-        dialog.setWindowTitle("Add Table")
-
-        dialog_layout = QHBoxLayout()
-        dialog.setLayout(dialog_layout)
-
-        dialog.resize(1000, 200)
-        dialog.exec()
-
-
-
+        self.window = AddTableDialog(self)
+        centerWindow(self.window)
+        # The two lines below forbid interaction with main window while dialog is open.
+        self.window.setModal(True)
+        self.window.exec()
+        # Once we have the ability to add a table, we're gonna need to call populateDropdown
 
 
     def createMenuBars(self):
@@ -189,11 +164,3 @@ class MainWindow(QMainWindow):
             model.appendRow(items)
         # Line below assigns the new model to the table, which was made outside of this function. 
         self.table.setModel(model)
-
-
-
-# # Dummy widgets to define the 3x3 grid.
-# grid_layout.addWidget(QLabel(), 0, 0)
-# grid_layout.addWidget(QLabel(), 0, 2)
-# grid_layout.addWidget(QLabel(), 2, 0)
-# grid_layout.addWidget(QLabel(), 2, 2)

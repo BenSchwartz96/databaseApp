@@ -36,18 +36,6 @@ class AppManager():
         centerWindow(self.window)
         self.window.show()
 
-    def show_add_table(self):
-        # Ok ive ballsed this up. I've made the same function here and in main_window.py but
-        # I dont think thats how I'm supposed to be doing this? idk. Take another look next time and work it out.
-        dialog = QDialog()
-        dialog.setWindowTitle("Add Table")
-
-        dialog_layout = QHBoxLayout()
-        dialog.setLayout(dialog_layout)
-
-        dialog.resize(100, 100)
-        dialog.exec()
-
     def run(self):
         self.show_welcome()
         sys.exit(self.app.exec())
