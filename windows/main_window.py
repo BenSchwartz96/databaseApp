@@ -44,34 +44,39 @@ class MainWindow(QMainWindow):
         # This will also serve to specify the 'main area' part of the window, excluding toolbars/menu bars.
         central_widget = QWidget()
         welcome_label = self.setupLabels()
-        add_table_button = self.setupButtons()
+        add_table_button, self.add_entry_button = self.setupButtons()
         self.table = QTableView()
 
         # QComboBox means Dropdown menu
-        self.dropdown = QComboBox()
-        self.populateDropdown()
-        self.dropdown.setCurrentIndex(-1)
-
+        self.tableDropdown = QComboBox()
+        self.populateTableDropdown()
+        self.tableDropdown.setCurrentIndex(-1)
         # currentTextChanged auto passes selected text to our function. Don't really get how though.
-        self.dropdown.currentTextChanged.connect(self.dropdownOptionSelected)   
+        self.tableDropdown.currentTextChanged.connect(self.tableDropdownOptionSelected)   
+        self.tableDropdown.setFixedWidth(150)
 
         grid_layout = QGridLayout()
 
         vbox1 = QVBoxLayout()
-        vbox1.addSpacing(50)
+        vbox1.addStretch()
         vbox1.addWidget(welcome_label)
         vbox1.addWidget(add_table_button)
-        vbox1.addSpacing(70)
+        vbox1.addStretch()
 
         hbox1_container = QWidget()
         hbox1_container.setLayout(vbox1)
 
+        self.add_entry_button.hide()
+        self.add_entry_button.setFixedWidth(100)
+        self.add_entry_button.clicked.connect(self.addEntryButtonClicked)
+
         vbox2 = QVBoxLayout()
         vbox2_label = QLabel("Choose table:")
-        vbox2.addSpacing(100)
+        vbox2.addStretch()
         vbox2.addWidget(vbox2_label)
-        vbox2.addWidget(self.dropdown)
-        vbox2.addSpacing(100)
+        vbox2.addWidget(self.tableDropdown)
+        vbox2.addWidget(self.add_entry_button)
+        vbox2.addStretch()
 
         hbox2_container = QWidget()
         hbox2_container.setLayout(vbox2)
@@ -107,21 +112,33 @@ class MainWindow(QMainWindow):
         button_add_table = QPushButton(self)
         button_add_table.setText("Add Table")
         button_add_table.clicked.connect(self.addTableButtonClicked)
-        return button_add_table
+
+        button_add_entry = QPushButton(self)
+        button_add_entry.setText("Add Entry")
+        button_add_entry.clicked.connect(self.addEntryButtonClicked)
+
+        return button_add_table, button_add_entry
 
 
-    def dropdownOptionSelected(self, text):
+    def tableDropdownOptionSelected(self, text):
         self.fetchTableData(text)
+        if self.tableDropdown.currentIndex() != -1:
+            self.add_entry_button.show()
+
         # I used to call populateDropdown here, but that caused an issue.
         # Instead I should call it after adding or removing a table.
 
-    def populateDropdown(self):
+    def populateTableDropdown(self):
         tableNames = fetch_table_names()
-        self.dropdown.clear()
-        self.dropdown.addItems(tableNames)
+        self.tableDropdown.clear()
+        self.tableDropdown.addItems(tableNames)
 
     def addTableButtonClicked(self):
         self.show_add_table()
+
+    def addEntryButtonClicked(self):
+        print("Add entry button has been clicked!")
+        # Need to make a function in database.py and hook it up to this. 
     
 
     def show_add_table(self):

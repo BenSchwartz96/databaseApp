@@ -16,9 +16,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 # NEXT TO-DO
-# So we've got it so you can add more cols when adding a table.
-# Next we need to add a linked dropdown to each that specifies the data type.
-# Then we need to actually set up the function that turns the inputs into a table.
+# Debug the 'add table' function (which is currently just trying to show the text saved to the input fields)
 
 dataTypes = ["text", "int", "bool"]
 
@@ -28,6 +26,8 @@ class AddTableDialog(QDialog):
     def __init__(self, manager):
         super().__init__()
         self.manager = manager
+        self.new_field_names = []
+        self.new_field_types = []
         self.initUI()
     
     def initUI(self):
@@ -43,18 +43,20 @@ class AddTableDialog(QDialog):
 
         self.vbox_1 = QVBoxLayout()
         table_name_label, field_name_label = self.setupLabels1()
-        table_name_input = QLineEdit(self)
+        self.table_name_input = QLineEdit(self)
         first_field_input = QLineEdit(self)
-        table_name_input.setFixedWidth(150)
+        self.table_name_input.setFixedWidth(150)
         first_field_input.setFixedWidth(150)
         self.vbox_1.addStretch()
         self.vbox_1.addWidget(table_name_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.vbox_1.addWidget(table_name_input, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.vbox_1.addWidget(self.table_name_input, alignment=Qt.AlignmentFlag.AlignCenter)
         self.vbox_1.addWidget(field_name_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         field_entry_container = QHBoxLayout()
         field_entry_container.addWidget(first_field_input)
         field_entry_container.addWidget(self.dataTypeDropdown)
+        self.new_field_names.append(first_field_input)
+        self.new_field_types.append(self.dataTypeDropdown)
         self.vbox_1.addLayout(field_entry_container)
         self.vbox_1.addStretch()
 
@@ -86,7 +88,8 @@ class AddTableDialog(QDialog):
         # then we go self.dropdown.addItems(dataTypes)
 
     def populateDropdown(self):
-        global dataTypes
+        pass
+        # I dont think we need this.
 
     def setupLabels1(self):
         table_name_label = QLabel("Table Name")
@@ -112,9 +115,34 @@ class AddTableDialog(QDialog):
         return add_field_button, add_table_button
 
     def addTable(self):
-        pass
-        # Will be filling this in later with logic to actually add a table. 
-        # Will prob import a function from database.py for this purpose
+        new_table_name = self.table_name_input.text()
+        sql_statement = self.buildSQL()
+        print(sql_statement)
+    # TODO: once we've got the proper SQL statement hooked up, we need to then make
+    #       the add_table func in database.py, and call it here, with the statement as an arg.
+
+    def buildSQL(self):
+        # Validation
+        if not self.new_field_names or not self.new_field_types:
+            raise ValueError("There must be at least one field name + type.")
+        if len(self.new_field_names) != len(self.new_field_types):
+            raise ValueError("There must be the same number of field names and types.")
+        # This validation isn't working properly. I think it's because there's always the same number of elements by default.
+        # What I need to do is have it check if text is present WITHIN the elements or not. 
+        
+        fields_sql = []
+        for name_input, type_input in zip(self.new_field_names, self.new_field_types):
+            name = name_input.text()
+            type = type_input.currentText()
+            fields_sql.append(f'"{name}" {type}')
+        return fields_sql
+        # so we're currently returning the list of values.
+        # TODO: actually construct the full statement and return that. 
+        # TODO: fix the validation
+
+        # Debug code.
+        # for name, type in zip(self.new_field_names, self.new_field_types):
+        #     print(name.text(), type.currentText())
 
     def addField(self):
         newField = QHBoxLayout()
@@ -127,8 +155,9 @@ class AddTableDialog(QDialog):
         newField.addWidget(newInput)
         newField.addWidget(dataTypeDropdown)
 
-        self.vbox_1.insertLayout(self.vbox_1.count() -1, newField)
+        # Add the pair of input fields to a list so we have the data in them for when we click add table.
+        self.new_field_names.append(newInput)
+        self.new_field_types.append(dataTypeDropdown)
 
-        # newInput = QLineEdit(self)
-        # newInput.setFixedWidth(150)
-        # self.vbox_1.insertWidget(self.vbox_1.count() -1, newInput)
+        # This line means the new Hbox gets inserted *before* the addStretch()
+        self.vbox_1.insertLayout(self.vbox_1.count() -1, newField)

@@ -45,6 +45,21 @@ def fetch_table_names():
     return tableNames
 
 
+def add_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("placeholder")
+    # Not yet done this.
+    # This'll hook up to the addTable function in addTable_dialog.py
+
+
+def add_entry():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("placeholder")
+    # Not yet done this.
+    # This'll hook up to the addEntryButtonClicked function in main_window.py
+
 # Does not need to be imported to main_window because it'll be called within this file by main_window.
 def get_connection():
     return psycopg2.connect(
